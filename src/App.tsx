@@ -4,9 +4,13 @@ import { Grid } from "@material-ui/core";
 import { makeStyles } from "@material-ui/core/styles";
 
 import ToolBar from "./components/tool-bar";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
 
 import * as THREE from "three";
+
+import { setupControls } from "./controls";
+
+import { Env } from "./game-objects/Env";
+import { generateRock } from "./services/RockGeneratorService";
 
 const useStyles = makeStyles(theme => ({
   grid: {
@@ -24,28 +28,34 @@ function App() {
         return;
       }
 
+      const env = new Env();
+
       const mountSize = rendererMount.current.getBoundingClientRect();
 
       const scene = new THREE.Scene();
+      scene.fog = env.fog;
+      scene.background = env.background;
+      scene.add(env.ground);
+
       const camera = new THREE.PerspectiveCamera(
         75,
         mountSize.width / mountSize.height,
         0.1,
-        1000,
+        500,
       );
     
-      const geometry = new THREE.BoxGeometry();
-      const material = new THREE.MeshBasicMaterial( { color: 0x00ff00 } );
-      const cube = new THREE.Mesh( geometry, material );
-      scene.add(cube);
-    
+      const rock = generateRock();
+      env.setOnGround(rock.mesh);
+      scene.add(rock.mesh);
+
       camera.position.z = 5;
+      camera.position.y = 5;
 
       const renderer = new THREE.WebGLRenderer();
       renderer.setSize(mountSize.width, mountSize.height);
       rendererMount.current.appendChild(renderer.domElement);
 
-      const controls = new OrbitControls(camera, renderer.domElement);
+      const controls = setupControls(camera, renderer.domElement);
 
       function animate() {
         requestAnimationFrame(animate);
