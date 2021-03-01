@@ -1,0 +1,3 @@
+[submodule "pcg-lib/external/glm"]
+	path = pcg-lib/external/glm
+	url = https://github.com/g-truc/glm.git
